@@ -1,5 +1,7 @@
 # Polonaise
 
+[![Polonaise](docs/screenshot.webp)](https://dlehmann.github.io/polonaise/)
+
 A disco conga line in pixel art, steered like Snake: lead the line over the night club dance floor and touch the
 guests – they join at the end. Running into a wall, the furniture or the own line costs a life and the back half of the
 line. Endless songs, each with more guests to collect and a faster beat.
