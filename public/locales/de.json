@@ -1,0 +1,82 @@
+{
+  "canvas.label": "Polonaise - Spielfeld",
+
+  "button.pause": "PAUSE",
+  "button.soundOn": "TON AN",
+  "button.soundOff": "TON AUS",
+  "button.fullscreen": "VOLLBILD",
+
+  "hud.score": "PUNKTE",
+  "hud.dancers": "TÄNZER",
+  "hud.combo": "KOMBO",
+  "hud.song": "LIED {song}",
+
+  "intro.title": "LIED {song}",
+  "intro.goal": "HOL {target} GÄSTE IN DIE POLONAISE!",
+  "intro.faster": "DAS TEMPO ZIEHT AN!",
+  "intro.start.keys": "ENTER ODER PFEILTASTE: START",
+  "intro.start.touch": "TIPPEN ODER WISCHEN: START",
+
+  "help.title": "SO GEHT'S",
+  "help.steer.keys": "PFEILE/WASD: RICHTUNG DER POLONAISE",
+  "help.steer.touch": "WISCHEN: RICHTUNG DER POLONAISE",
+  "help.pause.keys": "ESC: PAUSE   M: TON AN/AUS",
+  "help.pause.touch": "PAUSE: KNOPF OBEN RECHTS",
+  "help.catch": "GÄSTE BERÜHREN: SIE TANZEN MIT",
+  "help.combo": "SCHNELL HINTEREINANDER: KOMBO BIS X5",
+  "help.shy": "SCHÜCHTERNE GÄSTE LAUFEN WEG",
+  "help.star": "GOLDENE STARS BRINGEN 500 PUNKTE",
+  "help.crash": "NICHT GEGEN WAND, MÖBEL ODER DIE\nEIGENE POLONAISE TANZEN: DAS KOSTET\nEIN LEBEN UND DIE HALBE POLONAISE",
+
+  "waiting.keys": "PFEILTASTE: LOS!",
+  "waiting.touch": "WISCHEN: LOS!",
+
+  "crash.title": "AUTSCH!",
+  "crash.lives.one": "NOCH {count} LEBEN",
+  "crash.lives.other": "NOCH {count} LEBEN",
+  "crash.dropped.one": "{count} GAST HAT LOSGELASSEN",
+  "crash.dropped.other": "{count} GÄSTE HABEN LOSGELASSEN",
+
+  "cleared.title": "LIED {song} GESCHAFFT!",
+  "cleared.line.one": "POLONAISE: {count} GAST",
+  "cleared.line.other": "POLONAISE: {count} GÄSTE",
+  "cleared.song": "LIED {song}",
+  "cleared.perfect": "OHNE UNFALL",
+  "cleared.total": "PUNKTE",
+  "cleared.next": "NÄCHSTES: LIED {song}",
+  "cleared.nextInfo": "{target} GÄSTE, SCHNELLERER TAKT",
+  "cleared.continue.keys": "ENTER: WEITER",
+  "cleared.continue.touch": "TIPPEN: WEITER",
+
+  "gameover.title": "GAME OVER",
+  "gameover.score": "PUNKTE {score}",
+  "gameover.song": "BIS LIED {song}",
+
+  "pause.title": "PAUSE",
+  "pause.resume.keys": "ESC ODER ENTER: WEITER",
+  "pause.resume.touch": "TIPPEN: WEITER",
+  "pause.quit.keys": "Q: SPIEL BEENDEN",
+  "pause.quit.touch": "LANGE DRÜCKEN: SPIEL BEENDEN",
+
+  "title.tagline": "DIE DISCO-POLONAISE ZUM MITTANZEN",
+  "title.scores": "BESTENLISTE",
+  "title.noScores": "NOCH KEINE PUNKTE - LOS GEHT'S!",
+  "title.song": "LIED {song}",
+  "title.record": "NEUER REKORD: {score}!",
+  "title.yourScore": "DEINE PUNKTE: {score}",
+  "title.start.keys": "ENTER: START",
+  "title.start.touch": "TIPPEN: START",
+  "title.keys": "M: TON   F: VOLLBILD",
+
+  "entry.title": "STARKE LEISTUNG!",
+  "entry.rank": "PLATZ {rank} MIT {score} PUNKTEN",
+  "entry.prompt": "DEIN NAME:",
+  "entry.hint.keys": "ENTER: SPEICHERN",
+  "entry.hint.touch": "OK: SPEICHERN",
+  "entry.ok": "OK",
+  "entry.label": "Dein Name für die Bestenliste",
+  "entry.anonymous": "???",
+
+  "fx.star": "STAR!",
+  "fx.extraLife": "EXTRALEBEN!"
+}

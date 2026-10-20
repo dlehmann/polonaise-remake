@@ -1,0 +1,7 @@
+# For Apache: browsers must revalidate the page, the script and the language files, so an
+# update is seen at once (polonaise.js has no hash in its name).
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|js|json)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

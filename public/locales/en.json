@@ -1,0 +1,82 @@
+{
+  "canvas.label": "Polonaise - dance floor",
+
+  "button.pause": "PAUSE",
+  "button.soundOn": "SOUND ON",
+  "button.soundOff": "SOUND OFF",
+  "button.fullscreen": "FULLSCREEN",
+
+  "hud.score": "SCORE",
+  "hud.dancers": "DANCERS",
+  "hud.combo": "COMBO",
+  "hud.song": "SONG {song}",
+
+  "intro.title": "SONG {song}",
+  "intro.goal": "GET {target} GUESTS INTO THE CONGA LINE!",
+  "intro.faster": "THE BEAT SPEEDS UP!",
+  "intro.start.keys": "ENTER OR ARROW KEY: START",
+  "intro.start.touch": "TAP OR SWIPE: START",
+
+  "help.title": "HOW TO PLAY",
+  "help.steer.keys": "ARROWS/WASD: STEER THE CONGA LINE",
+  "help.steer.touch": "SWIPE: STEER THE CONGA LINE",
+  "help.pause.keys": "ESC: PAUSE   M: SOUND ON/OFF",
+  "help.pause.touch": "PAUSE: BUTTON AT THE TOP RIGHT",
+  "help.catch": "TOUCH THE GUESTS: THEY JOIN IN",
+  "help.combo": "ONE AFTER ANOTHER: COMBO UP TO X5",
+  "help.shy": "SHY GUESTS RUN AWAY",
+  "help.star": "GOLDEN STARS ARE WORTH 500 POINTS",
+  "help.crash": "DON'T DANCE INTO WALLS, FURNITURE OR\nYOUR OWN LINE: THAT COSTS A LIFE\nAND HALF OF THE CONGA LINE",
+
+  "waiting.keys": "ARROW KEY: GO!",
+  "waiting.touch": "SWIPE: GO!",
+
+  "crash.title": "OUCH!",
+  "crash.lives.one": "{count} LIFE LEFT",
+  "crash.lives.other": "{count} LIVES LEFT",
+  "crash.dropped.one": "{count} GUEST LET GO",
+  "crash.dropped.other": "{count} GUESTS LET GO",
+
+  "cleared.title": "SONG {song} CLEARED!",
+  "cleared.line.one": "CONGA LINE: {count} GUEST",
+  "cleared.line.other": "CONGA LINE: {count} GUESTS",
+  "cleared.song": "SONG {song}",
+  "cleared.perfect": "NO CRASH",
+  "cleared.total": "SCORE",
+  "cleared.next": "NEXT: SONG {song}",
+  "cleared.nextInfo": "{target} GUESTS, FASTER BEAT",
+  "cleared.continue.keys": "ENTER: CONTINUE",
+  "cleared.continue.touch": "TAP: CONTINUE",
+
+  "gameover.title": "GAME OVER",
+  "gameover.score": "SCORE {score}",
+  "gameover.song": "REACHED SONG {song}",
+
+  "pause.title": "PAUSE",
+  "pause.resume.keys": "ESC OR ENTER: CONTINUE",
+  "pause.resume.touch": "TAP: CONTINUE",
+  "pause.quit.keys": "Q: END GAME",
+  "pause.quit.touch": "LONG PRESS: END GAME",
+
+  "title.tagline": "THE DISCO CONGA LINE TO DANCE ALONG",
+  "title.scores": "HIGH SCORES",
+  "title.noScores": "NO SCORES YET - LET'S DANCE!",
+  "title.song": "SONG {song}",
+  "title.record": "NEW RECORD: {score}!",
+  "title.yourScore": "YOUR SCORE: {score}",
+  "title.start.keys": "ENTER: START",
+  "title.start.touch": "TAP: START",
+  "title.keys": "M: SOUND   F: FULLSCREEN",
+
+  "entry.title": "NEW HIGH SCORE!",
+  "entry.rank": "RANK {rank} WITH {score} POINTS",
+  "entry.prompt": "ENTER YOUR NAME:",
+  "entry.hint.keys": "ENTER: SAVE",
+  "entry.hint.touch": "OK: SAVE",
+  "entry.ok": "OK",
+  "entry.label": "Your name for the high score list",
+  "entry.anonymous": "???",
+
+  "fx.star": "STAR!",
+  "fx.extraLife": "EXTRA LIFE!"
+}

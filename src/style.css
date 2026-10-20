@@ -1,0 +1,128 @@
+/*
+ * style.css - the styles of the game element. Bundled into polonaise.js (imported
+ * with ?inline) and added to the page as a <style> element, so embedding the game
+ * needs no extra stylesheet. Everything is scoped to the class .polonaise.
+ */
+
+.polonaise {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    background: #000;
+    /* swipes steer the line instead of scrolling or zooming the page */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.polonaise *,
+.polonaise *::before,
+.polonaise *::after {
+    box-sizing: border-box;
+}
+
+/* Fullscreen: the game as large as fits, centered. The 34px are the button bar. */
+.polonaise:fullscreen {
+    justify-content: center;
+    align-items: center;
+}
+
+.polonaise:fullscreen > * {
+    width: min(100vw, calc((100vh - 34px) * 4 / 3));
+}
+
+/* ---- Buttons above the screen ---- */
+
+.polonaise-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    height: 30px;
+    padding-right: max(4px, env(safe-area-inset-right));
+}
+
+.polonaise-buttons button {
+    font: 8px "Press Start 2P", monospace;
+    color: #d6d0f0;
+    background: #141022;
+    border: 2px solid #3c325c;
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+.polonaise-buttons button:focus-visible {
+    outline: 2px solid #ffe03d;
+}
+
+.polonaise-buttons [hidden] {
+    display: none;
+}
+
+/* ---- The screen ---- */
+
+.polonaise-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    /* lets the name entry scale with the canvas (cqw: percent of the stage width) */
+    container-type: inline-size;
+}
+
+.polonaise-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* sharp pixels when the 640x480 canvas is scaled */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    cursor: pointer;
+}
+
+/* ---- Name entry for the high score list, over the canvas (position set by view.ts) ---- */
+
+.polonaise-entry {
+    position: absolute;
+    display: flex;
+    gap: 1.875cqw;
+    /* 16 canvas pixels */
+    font: 2.5cqw/1 "Press Start 2P", monospace;
+}
+
+.polonaise-entry[hidden] {
+    display: none;
+}
+
+.polonaise-entry input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    color: #fff;
+    caret-color: #ffe03d;
+    background: #141022;
+    border: 0.3125cqw solid #3c325c;
+    padding: 0 1.25cqw;
+    text-transform: uppercase;
+    outline: none;
+    border-radius: 0;
+}
+
+.polonaise-entry input:focus {
+    border-color: #ffe03d;
+}
+
+.polonaise-entry button {
+    font: inherit;
+    color: #141022;
+    background: #ffe03d;
+    border: 0;
+    padding: 0 1.875cqw;
+    cursor: pointer;
+    border-radius: 0;
+}
+
+.polonaise-entry button:focus-visible {
+    outline: 0.3125cqw solid #fff;
+}

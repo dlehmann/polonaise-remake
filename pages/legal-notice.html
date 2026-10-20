@@ -1,0 +1,180 @@
+<!--
+  legal-notice.html - the legal notice (Impressum) and privacy policy of the GitHub
+  Pages site. `vite build --mode pages` (npm run build:pages) adds this fragment to
+  the end of the body of index.html; the normal build leaves it out, so the game
+  others put on their sites carries no legal notice of this site.
+
+  The texts are in German, as German law (§ 5 DDG, Art. 13 GDPR) requires them for
+  this site. The link sits at the bottom right and opens them in a dialog, which
+  pauses the game.
+-->
+<style>
+/* room for the link below the game */
+body {
+    box-sizing: border-box;
+    padding-bottom: 20px;
+}
+#polonaise {
+    width: min(100vw, calc((100dvh - 34px - 20px) * 4 / 3));
+}
+
+.legal-link {
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(6px, env(safe-area-inset-bottom));
+    z-index: 10;
+    font: 8px/1 "Press Start 2P", monospace;
+    color: #8a90a8;
+    text-decoration: none;
+    padding: 4px;
+}
+.legal-link:hover, .legal-link:focus-visible { color: #ffe03d; outline: none; }
+
+.legal {
+    width: min(1180px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    padding: 0;
+    color: #d6d0f0;
+    background: #141022;
+    border: 2px solid #3c325c;
+    font: 14px/1.5 system-ui, sans-serif;
+}
+.legal::backdrop { background: rgb(0 0 0 / 0.7); }
+.legal-body { padding: 4px 24px 20px; }
+.legal-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    margin: 8px;
+    font: 12px "Press Start 2P", monospace;
+    color: #d6d0f0;
+    background: #141022;
+    border: 2px solid #3c325c;
+    padding: 6px 8px;
+    cursor: pointer;
+}
+.legal-close:hover, .legal-close:focus-visible { color: #ffe03d; border-color: #ffe03d; outline: none; }
+.legal h1 { font: 16px/1.4 "Press Start 2P", monospace; color: #ff3d9a; margin: 16px 0 8px; }
+.legal h2 { font-size: 15px; color: #fff; margin: 12px 0 2px; }
+.legal p, .legal address { margin: 0 0 6px; font-style: normal; }
+.legal a { color: #3df0ff; }
+/* in columns: a heading stays with its text, a paragraph breaks at least 3 lines from its ends */
+.legal h2 { break-after: avoid; }
+.legal p { orphans: 3; widows: 3; }
+.legal section + section { margin-top: 16px; padding-top: 0; border-top: 1px solid #3c325c; }
+
+/* Wide windows: legal notice and privacy policy flow through columns, so that everything
+ * fits without scrolling */
+@media (min-width: 760px) {
+    .legal-body {
+        columns: 2;
+        column-gap: 32px;
+        column-rule: 1px solid #3c325c;
+    }
+    .legal section + section {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+    .legal h1 { break-after: avoid; }
+}
+@media (min-width: 1100px) {
+    .legal-body { columns: 3; }
+}
+</style>
+
+<a class="legal-link" href="#impressum" lang="de">Datenschutz/Impressum</a>
+
+<dialog class="legal" id="legal" lang="de" aria-labelledby="impressum">
+  <button class="legal-close" type="button" title="Schließen" aria-label="Schließen">X</button>
+  <div class="legal-body">
+    <section>
+      <h1 id="impressum">Impressum</h1>
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <address>
+        Dennis Lehmann<br>
+        c/o Autorenglück #92960<br>
+        Albert-Einstein-Straße 47<br>
+        02977 Hoyerswerda
+      </address>
+
+      <h2>Kontakt</h2>
+      <p>Fax: +49 201 85974557</p>
+      <p>E-Mail: <a href="mailto:mail@dennis-lehmann.de">mail@dennis-lehmann.de</a></p>
+    </section>
+
+    <section>
+      <h1 id="datenschutz">Datenschutz</h1>
+      <div class="legal-item">
+        <h2>Verantwortlicher</h2>
+        <p>Verantwortlich für diese Website ist Dennis Lehmann (Anschrift und Kontakt siehe Impressum). Fragen zum
+          Datenschutz richten Sie bitte an <a href="mailto:mail@dennis-lehmann.de">mail@dennis-lehmann.de</a>.</p>
+      </div>
+      <div class="legal-item">
+        <h2>Hosting bei GitHub Pages</h2>
+        <p>Diese Website wird bei GitHub Pages gehostet, einem Dienst der GitHub, Inc., 88 Colin P. Kelly Jr. Street,
+          San Francisco, CA 94107, USA. Beim Aufruf der Seiten verarbeitet GitHub technisch notwendige Zugriffsdaten,
+          insbesondere Ihre IP-Adresse, und speichert sie nach eigenen Angaben aus Sicherheitsgründen in Server-Logs.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse liegt in einer sicheren und stabilen
+          Bereitstellung der Website.</p>
+        <p>Dabei können Daten in die USA übermittelt werden. GitHub ist unter dem EU-US Data Privacy Framework
+          zertifiziert, für das die EU-Kommission einen Angemessenheitsbeschluss (Art. 45 DSGVO) erlassen hat. Näheres
+          steht im <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub
+          General Privacy Statement</a>.</p>
+      </div>
+      <div class="legal-item">
+        <h2>Speicherung im Browser</h2>
+        <p>Das Spiel speichert die Bestenliste (die eingegebenen Namen, Punkte, das erreichte Lied und das Datum) in der
+          IndexedDB Ihres Browsers, außerdem den zuletzt eingegebenen Namen und die Ton-Einstellung im lokalen Speicher
+          (localStorage). Diese Daten bleiben auf Ihrem Gerät und werden nicht an mich oder Dritte übertragen. Die
+          Speicherung ist für die von Ihnen genutzte Funktion des Spiels erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Sie
+          können die Daten jederzeit löschen, indem Sie die Website-Daten dieser Seite in Ihrem Browser entfernen.</p>
+      </div>
+      <div class="legal-item">
+        <h2>Keine Cookies, kein Tracking</h2>
+        <p>Diese Website setzt keine Cookies, verwendet keine Analyse- oder Tracking-Werkzeuge und lädt keine Inhalte von
+          fremden Servern (etwa Schriften oder Skripte). Ich selbst erhebe oder speichere keine personenbezogenen Daten.</p>
+      </div>
+      <div class="legal-item">
+        <h2>Kontakt per E-Mail</h2>
+        <p>Wenn Sie mir eine E-Mail schreiben, verarbeite ich Ihre Angaben nur, um Ihre Anfrage zu beantworten
+          (Art. 6 Abs. 1 lit. f DSGVO), und lösche sie, sobald sie dafür nicht mehr benötigt werden.</p>
+      </div>
+      <div class="legal-item">
+        <h2>Ihre Rechte</h2>
+        <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung
+          der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen die Verarbeitung (Art. 21).
+          Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO).</p>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<script>
+/* Opens the dialog from the link (and from a link to #impressum or #datenschutz), pauses
+ * the game while it is open, and gives the focus back to the game when it closes. */
+(() => {
+    const dialog = document.getElementById('legal');
+    const game = document.getElementById('polonaise');
+    const open = () => {
+        game?.dispatchEvent(new Event('polonaise:pause'));
+        if (!dialog.open)
+            dialog.showModal();
+    };
+    document.querySelector('.legal-link').addEventListener('click', ev => {
+        ev.preventDefault();
+        open();
+    });
+    dialog.querySelector('.legal-close').addEventListener('click', () => dialog.close());
+    // a click on the backdrop closes the dialog too
+    dialog.addEventListener('click', ev => {
+        if (ev.target === dialog)
+            dialog.close();
+    });
+    dialog.addEventListener('close', () => game?.focus({ preventScroll: true }));
+    if (location.hash === '#impressum' || location.hash === '#datenschutz')
+        open();
+})();
+</script>
