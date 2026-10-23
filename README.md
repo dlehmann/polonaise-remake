@@ -1,12 +1,12 @@
 # Polonaise
 
-[![Polonaise](docs/screenshot.webp)](https://dlehmann.github.io/polonaise/)
+[![Polonaise](docs/screenshot.webp)](https://dlehmann.github.io/polonaise-c64/)
 
 A disco conga line in pixel art, steered like Snake: lead the line over the night club dance floor and touch the
 guests – they join at the end. Running into a wall, the furniture or the own line costs a life and the back half of the
 line. Endless songs, each with more guests to collect and a faster beat.
 
-**Play it online: https://dlehmann.github.io/polonaise/**
+**Play it online: https://dlehmann.github.io/polonaise-c64/**
 
 The game is written in TypeScript and built with [Vite](https://vite.dev/) into a single JavaScript file. It speaks
 English and German (and any language you add), keeps a high score list with the players' names in the browser and can
