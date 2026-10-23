@@ -8,12 +8,14 @@
  *
  * The mode "pages" (`--mode pages`) builds the GitHub Pages version: the same
  * game, with the link "Datenschutz/Impressum" and its dialog from
- * pages/legal-notice.html added to index.html.
+ * pages/legal-notice.html added to index.html, and kept out of search engines
+ * (robots "noindex, follow": the site points to the C64 version instead).
  */
 import { readFileSync } from 'node:fs';
 import { defineConfig, type Plugin } from 'vite';
 
-/** Injects the legal notice (link and dialog) before the end of the body of index.html. */
+/** Injects the legal notice (link and dialog) before the end of the body of index.html, and the
+ * robots meta tag "noindex, follow" into its head. */
 function legalNotice(): Plugin {
     const file = new URL('./pages/legal-notice.html', import.meta.url);
     return {
@@ -27,7 +29,9 @@ function legalNotice(): Plugin {
             });
         },
         transformIndexHtml(html) {
-            return html.replace('</body>', `${readFileSync(file, 'utf8')}</body>`);
+            return html
+                .replace('</head>', '<meta name="robots" content="noindex, follow">\n</head>')
+                .replace('</body>', `${readFileSync(file, 'utf8')}</body>`);
         },
     };
 }

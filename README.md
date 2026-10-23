@@ -153,7 +153,8 @@ the repository (it needs a public repository or a paid plan).
 The Pages build is the normal build plus the link "Datenschutz/Impressum" at the bottom right, which opens the legal
 notice and privacy policy in a dialog. They are in `pages/legal-notice.html`, which the Vite plugin in
 `vite.config.ts` adds to `index.html` in the mode `pages` only – the normal build, which others put on their own
-sites, does not contain them.
+sites, does not contain them. The same plugin marks the Pages version with the robots meta tag `noindex, follow`, so
+search engines leave it out (and follow its links).
 
 ## Source files
 
