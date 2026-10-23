@@ -37,7 +37,7 @@ function legalNotice(): Plugin {
 }
 
 export default defineConfig(({ mode }) => ({
-    // relative URLs in index.html: the build works in any folder (e.g. /polonaise-c64/ on GitHub Pages)
+    // relative URLs in index.html: the build works in any folder (e.g. /polonaise-remake/ on GitHub Pages)
     base: './',
     plugins: mode === 'pages' ? [legalNotice()] : [],
     build: {

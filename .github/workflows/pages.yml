@@ -1,5 +1,5 @@
 # Builds the game with the legal notice (npm run build:pages) and publishes dist/ on
-# GitHub Pages (https://<user>.github.io/polonaise-c64/). In the repository settings, under
+# GitHub Pages (https://<user>.github.io/polonaise-remake/). In the repository settings, under
 # Pages, the source has to be "GitHub Actions".
 name: Pages
 
