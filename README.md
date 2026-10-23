@@ -170,6 +170,6 @@ search engines leave it out (and follow its links).
 | `src/scores.ts`               | the high score list in the IndexedDB                                                 |
 | `src/view.ts`                 | the HTML around the canvas: buttons and the name entry form                          |
 | `src/style.css`               | the styles of the game element (bundled into `polonaise.js`)                         |
-| `public/`                     | files copied into the build unchanged: sounds, font, language files, `.htaccess`     |
+| `public/`                     | files copied into the build unchanged: sounds, font, language files, favicon, `.htaccess` |
 | `pages/legal-notice.html`     | legal notice and privacy policy of the GitHub Pages site                             |
 | `vite.config.ts`              | build configuration                                                                  |
