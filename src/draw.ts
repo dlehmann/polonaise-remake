@@ -4,14 +4,13 @@
  *
  * The world is pixel art at 320x240, every pixel drawn as a 2x2 block ("art
  * pixels"): a dark purple checkered dance floor with grain, tiles lighting up to
- * the beat and under the steps of the line, a frame of running LED lights,
- * furniture and people as 16x16 sprites with a dark outline, built once per look
+ * the beat, a frame of running LED lights, furniture and people as 16x16 sprites with a dark outline, built once per look
  * from rectangles. The status bar, the info screens and the texts are drawn in
  * screen pixels with the pixel font Press Start 2P.
  *
- * The renderer only reads the game state. Its own state (lights, confetti,
- * floating texts, screen shake) advances in tick(), once per logic tick, and
- * reacts to the game's events in event().
+ * The renderer only reads the game state. Its own state (confetti, floating
+ * texts, screen shake) advances in tick(), once per logic tick, and reacts to
+ * the game's events in event().
  */
 import {
     CELLS, COLS, COMBO_TICKS, DIR, EV, Game, type GameEvent, GUEST, LIVES_START, LOOKS, MAX_GUESTS, nextCell,
@@ -42,7 +41,6 @@ const SPR_W = 18, SPR_H = 22, SPR_OX = 1, SPR_OY = 5;
 const LOOK_DJ = LOOKS;
 
 const BEAT_TICKS = 30;          // 120 bpm, the tempo of the music
-const LIGHT_TICKS = 50;         // a tile under the line glows this long
 const FLEE_TICKS = 40;          // "!" over a shy guest
 const GUEST_STEP = 8;           // ticks of a guest's step
 const SHAKE_TICKS = 20;
@@ -377,13 +375,8 @@ export class Renderer {
     private ticks = 0;
     private fx: FloatingText[] = [];
     private parts: Particle[] = [];
-    /** Ticks left of the glow of each floor tile, and its color (an index into LIT). */
-    private readonly light = new Int32Array(CELLS);
-    private readonly lightColor = new Uint8Array(CELLS);
     /** Ticks left of the "!" over each guest slot. */
     private readonly fleeMark = new Int32Array(MAX_GUESTS);
-    /** The cell of the leader in the last tick (a new one lights up). */
-    private lastHead = -1;
     private shake = 0;
     private screenFlash = 0;
     private livesFlash = 0;
@@ -512,11 +505,6 @@ export class Renderer {
             if (this.clearedTicks && (x + y + b) % 3 === 0) {
                 a = 150;
                 col = LIT[(x * 2 + y + b) % 5];
-            }
-            const l = Math.floor(this.light[c] * 190 / LIGHT_TICKS);
-            if (l > a) {
-                a = l;
-                col = LIT[this.lightColor[c]];
             }
             if (!a)
                 continue;
@@ -673,17 +661,6 @@ export class Renderer {
     /** The line and the guests, back to front, with their decorations. */
     private drawPeople(g: Game): void {
         const f = this.lineProgress(g), dance = g.phase === PHASE.CLEARED, d: Figure[] = [];
-
-        // a glowing band on the floor holds the members together
-        for (let i = 0; i < g.length; i++) {
-            const c = alpha(LIT[(i + this.beat()) % 5], 170);
-            const [x0, y0] = this.lerpCell(g.from[i], g.body[i], f);
-            this.art(x0 + 2, y0 + 13, 12, 3, alpha(c, 90));
-            if (i > 0) {
-                const [x1, y1] = this.lerpCell(g.from[i - 1], g.body[i - 1], f);
-                this.art(Math.min(x0, x1) + 7, Math.min(y0, y1) + 13, Math.abs(x1 - x0) + 2, Math.abs(y1 - y0) + 2, c);
-            }
-        }
 
         for (let i = 0; i < g.length; i++) {
             const [x, y] = this.lerpCell(g.from[i], g.body[i], f);
@@ -847,10 +824,8 @@ export class Renderer {
         const [x, y] = cellCenter(e.cell);
         switch (e.type) {
         case EV.SONG_START:
-            this.light.fill(0);
             this.parts = [];
             this.fleeMark.fill(0);
-            this.lastHead = -1;
             this.shake = this.screenFlash = this.clearedTicks = 0;
             break;
         case EV.CATCH: {
@@ -890,19 +865,9 @@ export class Renderer {
         }
     }
 
-    /** Advances the animations by one logic tick; g is the game shown (or the demo). */
-    tick(g: Game): void {
+    /** Advances the animations by one logic tick. */
+    tick(): void {
         this.ticks++;
-        for (let c = 0; c < CELLS; c++)
-            if (this.light[c])
-                this.light[c]--;
-        if (g.length > 0 && g.body[0] !== this.lastHead) {
-            this.lastHead = g.body[0];
-            if (g.moving) {
-                this.light[this.lastHead] = LIGHT_TICKS;
-                this.lightColor[this.lastHead] = Math.floor(g.steps / 2) % 5;
-            }
-        }
         for (let i = 0; i < MAX_GUESTS; i++)
             if (this.fleeMark[i])
                 this.fleeMark[i]--;

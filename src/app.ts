@@ -348,14 +348,14 @@ export class App {
     private tick(): void {
         const game = this.game;
         if (!game) {
-            this.renderer.tick(this.demo);
+            this.renderer.tick();
             return;
         }
         game.tick(this.keys.shift() ?? DIR.NONE, this.confirmPressed);
         this.confirmPressed = false;
         for (const e of game.events)
             this.playEvent(game, e);
-        this.renderer.tick(game);
+        this.renderer.tick();
         if (game.done)
             this.endGame();
     }
