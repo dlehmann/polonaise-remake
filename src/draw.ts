@@ -706,11 +706,11 @@ export class Renderer {
         return g.stepTimer / songGet(g.song).stepTicks;
     }
 
-    /** The line (unless line is false) and the guests, back to front, with their decorations. */
-    private drawPeople(g: Game, line = true): void {
+    /** The line and the guests, back to front, with their decorations. */
+    private drawPeople(g: Game): void {
         const f = this.lineProgress(g), dance = g.phase === PHASE.CLEARED, d: Figure[] = [];
 
-        for (let i = 0; line && i < g.length; i++) {
+        for (let i = 0; i < g.length; i++) {
             const [x, y] = this.lerpCell(g.from[i], g.body[i], f);
             d.push({
                 x, y, look: g.look[i], legs: (g.steps + i) % 2,
@@ -787,7 +787,7 @@ export class Renderer {
 
     /**
      * Everything below the status bar: floor, lights, furniture, people, confetti.
-     * @param backdrop for the title and entry screens: without the line, and in portrait with the
+     * @param backdrop for the title and entry screens: without people (but the DJ), and in portrait with the
      *     floor over the whole screen (the world moved up by TITLE_SHIFT)
      */
     private drawWorld(g: Game, backdrop = false): void {
@@ -800,8 +800,10 @@ export class Renderer {
         this.drawDj(g);
         this.drawFurniture(g);
         this.drawMirrorBall();
-        this.drawArrows(g);
-        this.drawPeople(g, !backdrop);
+        if (!backdrop) {
+            this.drawArrows(g);
+            this.drawPeople(g);
+        }
         for (const p of this.parts)
             if (p.life > 0)
                 this.art(Math.trunc(p.x), Math.trunc(p.y), 2, 2, alpha(p.color, p.life * 12));
