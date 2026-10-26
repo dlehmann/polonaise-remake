@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+  mobile/index.html - the phone version: the game in portrait (a field of 11 x 18
+  cells), as large as the screen allows, without zooming or scrolling. It uses the
+  same polonaise.js, sounds and language files as the page one folder up. In the
+  development server the script is src/main.ts; `npm run build` replaces it with
+  ../polonaise.js.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- no zoom: no pinch, no double tap, no zooming into the name input -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="icon" href="../favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Polonaise</title>
+<meta name="description" content="A disco conga line in pixel art: lead the line over the dance floor and get every guest to join. The version for phones.">
+<style>
+:root { color-scheme: dark; }
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    /* no pull to refresh, no rubber band */
+    overscroll-behavior: none;
+}
+body {
+    /* iOS: the page cannot be dragged around */
+    position: fixed;
+    inset: 0;
+}
+/* the game element fills the screen, so a swipe anywhere steers */
+#polonaise {
+    box-sizing: border-box;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    container-type: size;
+}
+/* the screen as large as fits (the buttons are hidden in portrait) */
+#polonaise > :not(.polonaise-turn) {
+    width: min(100cqw, calc(100cqh * 6 / 11));
+}
+</style>
+</head>
+<body>
+<main id="polonaise" data-keyboard="page" data-layout="portrait" data-assets="../"></main>
+<script>
+// iOS Safari zooms on a pinch even with user-scalable=no
+document.addEventListener('gesturestart', ev => ev.preventDefault());
+</script>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

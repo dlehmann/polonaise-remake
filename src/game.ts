@@ -9,7 +9,8 @@
  * (which the renderer and the audio turn into effects and sounds).
  *
  * The playing field is a grid of COLS x ROWS cells, addressed by a single cell
- * index (y * COLS + x).
+ * index (y * COLS + x). It is 19 x 12 cells wide like on the cabinet, or 11 x 18 in
+ * portrait (the phone version); usePortraitFloor() switches once, before the first game.
  */
 
 /** Logic ticks per second. */
@@ -17,11 +18,11 @@ export const TICK_HZ = 60;
 /** On an info screen, A (Enter, tap) skips ahead only after this many ticks. */
 export const SKIP_TICKS = TICK_HZ;
 /** Width of the playing field in cells. */
-export const COLS = 19;
+export let COLS = 19;
 /** Height of the playing field in cells. */
-export const ROWS = 12;
+export let ROWS = 12;
 /** Number of cells of the playing field. */
-export const CELLS = COLS * ROWS;
+export let CELLS = COLS * ROWS;
 /** Guest slots: guests on the floor at the same time at most. */
 export const MAX_GUESTS = 32;
 /** Direction changes buffered ahead of the steps of the line. */
@@ -132,15 +133,15 @@ const CLEARED_TICKS = 7 * TICK_HZ;
 const GAME_OVER_TICKS = 6 * TICK_HZ;
 /** New guests appear at least this far from the leader (if there is room). */
 const SPAWN_DISTANCE = 4;
-const START_X = 9;
-const START_Y = 9;
+let START_X = 9;
+let START_Y = 9;
 
 /*
  * Floor layouts, one per song (repeating): '.' floor, 'D' DJ desk, 'T' high table,
  * 'S' speaker, 'B' bar counter. The start cell and its row stay free.
  */
 const E = '...................';
-const LAYOUTS: readonly (readonly string[])[] = [
+const LANDSCAPE_LAYOUTS: readonly (readonly string[])[] = [
     [E, E, E, E, E, E, E, E, E, E, E, E],
     ['.......DDDDD.......', E, E, E, E, E, E, E, E, E, E, E],
     ['.......DDDDD.......', E, E, '....T.........T....', E, E, E, E, '....T.........T....', E, E, E],
@@ -155,6 +156,39 @@ const LAYOUTS: readonly (readonly string[])[] = [
     ['SS.....DDDDD.....SS', 'SS...............SS', '..T......T......T..', E, E, '.....T.......T.....',
      E, E, E, E, '..T......T......T..', E],
 ];
+
+/* The same eight floors in portrait, 11 x 18 cells. */
+const P = '...........';
+const PORTRAIT_LAYOUTS: readonly (readonly string[])[] = [
+    [P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P],
+    ['...DDDDD...', P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P],
+    ['...DDDDD...', P, P, P, '..T.....T..', P, P, P, P, P, '..T.....T..', P, P, P, P, P, P, P],
+    ['SS.DDDDD.SS', 'SS.......SS', P, P, P, P, P, P, P, P, P, P, P, P, P, P, 'SS.......SS', 'SS.......SS'],
+    ['...DDDDD...', P, P, P, P, '..T.....T..', P, P, P, P, '..T.....T..', P, P, P, P, P, P,
+     '..BBBBBBB..'],
+    ['SS.DDDDD.SS', 'SS.......SS', P, P, P, P, P, P, '....TTT....', '....TTT....', P, P, P, P, P, P,
+     'SS.......SS', 'SS.......SS'],
+    ['...DDDDD...', P, P, P, '..B.....B..', '..B.....B..', '..B.....B..', '..B.....B..', '..B.....B..',
+     '..B.....B..', '..B.....B..', '..B.....B..', P, P, P, P, P, P],
+    ['SS.DDDDD.SS', 'SS.......SS', P, '.T...T...T.', P, P, P, '...T...T...', P, P, P, '.T...T...T.', P, P,
+     P, P, '..T.....T..', P],
+];
+
+/** The floors of the current orientation. */
+let LAYOUTS = LANDSCAPE_LAYOUTS;
+
+/**
+ * Switches the playing field to portrait: 11 x 18 cells with their own floors, for the
+ * phone version. Must be called before the first Game is created (and only once).
+ */
+export function usePortraitFloor(): void {
+    COLS = 11;
+    ROWS = 18;
+    CELLS = COLS * ROWS;
+    START_X = 5;
+    START_Y = 14;
+    LAYOUTS = PORTRAIT_LAYOUTS;
+}
 
 /** Ticks per step for the songs 1, 2, ...; later songs use STEP_MIN. */
 const STEP_TICKS = [10, 9, 9, 8, 8, 7, 7, 6, 6, 6, 6];

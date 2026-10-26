@@ -34,6 +34,10 @@
     width: min(100vw, calc((100vh - 34px) * 4 / 3));
 }
 
+.polonaise-portrait:fullscreen > * {
+    width: min(100vw, calc(100vh * 6 / 11));
+}
+
 /* ---- Buttons above the screen ---- */
 
 .polonaise-buttons {
@@ -61,6 +65,11 @@
     display: none;
 }
 
+/* portrait (phones): no buttons, the room goes to the screen; a tap on the status bar pauses */
+.polonaise-portrait .polonaise-buttons {
+    display: none;
+}
+
 /* ---- The screen ---- */
 
 .polonaise-stage {
@@ -69,6 +78,11 @@
     aspect-ratio: 4 / 3;
     /* lets the name entry scale with the canvas (cqw: percent of the stage width) */
     container-type: inline-size;
+}
+
+/* the portrait canvas of the phone version is 384x704 */
+.polonaise-portrait .polonaise-stage {
+    aspect-ratio: 6 / 11;
 }
 
 .polonaise-stage canvas {
@@ -84,11 +98,16 @@
 /* ---- Name entry for the high score list, over the canvas (position set by view.ts) ---- */
 
 .polonaise-entry {
+    /* a canvas pixel */
+    --px: calc(100cqw / 640);
     position: absolute;
     display: flex;
-    gap: 1.875cqw;
-    /* 16 canvas pixels */
-    font: 2.5cqw/1 "Press Start 2P", monospace;
+    gap: calc(12 * var(--px));
+    font: calc(16 * var(--px))/1 "Press Start 2P", monospace;
+}
+
+.polonaise-portrait .polonaise-entry {
+    --px: calc(100cqw / 384);
 }
 
 .polonaise-entry[hidden] {
@@ -102,8 +121,8 @@
     color: #fff;
     caret-color: #ffe03d;
     background: #141022;
-    border: 0.3125cqw solid #3c325c;
-    padding: 0 1.25cqw;
+    border: calc(2 * var(--px)) solid #3c325c;
+    padding: 0 calc(8 * var(--px));
     text-transform: uppercase;
     outline: none;
     border-radius: 0;
@@ -118,11 +137,39 @@
     color: #141022;
     background: #ffe03d;
     border: 0;
-    padding: 0 1.875cqw;
+    padding: 0 calc(12 * var(--px));
     cursor: pointer;
     border-radius: 0;
 }
 
 .polonaise-entry button:focus-visible {
-    outline: 0.3125cqw solid #fff;
+    outline: calc(2 * var(--px)) solid #fff;
+}
+
+/* ---- Portrait: the note for a phone held sideways ---- */
+
+.polonaise-turn {
+    display: none;
+}
+
+/* a low landscape window is a phone on its side: the game would be tiny */
+@media (orientation: landscape) and (max-height: 500px) {
+    .polonaise-portrait > * {
+        visibility: hidden;
+    }
+
+    .polonaise-portrait > .polonaise-turn {
+        visibility: visible;
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font: 12px/2 "Press Start 2P", monospace;
+        color: #ffe03d;
+        text-align: center;
+        background: #000;
+    }
 }

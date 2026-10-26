@@ -46,8 +46,14 @@ export class Sound {
     /** Sound switched off by the player (remembered in the local storage). */
     muted = false;
 
-    /** @param base the URL of the folder with the sound files (ending in "/") */
-    constructor(private readonly base: string) {
+    /**
+     * @param base the URL of the folder with the sound files (ending in "/")
+     * @param remember whether the mute setting is kept in the local storage (the phone version
+     *     has no sound button, so it always starts with the sound on and leaves the setting alone)
+     */
+    constructor(private readonly base: string, private readonly remember = true) {
+        if (!remember)
+            return;
         try {
             this.muted = localStorage.getItem(MUTED_KEY) === '1';
         } catch { /* no storage: sound on */ }
@@ -145,7 +151,8 @@ export class Sound {
     toggleMute(): boolean {
         this.muted = !this.muted;
         try {
-            localStorage.setItem(MUTED_KEY, this.muted ? '1' : '0');
+            if (this.remember)
+                localStorage.setItem(MUTED_KEY, this.muted ? '1' : '0');
         } catch { /* no storage: only for this visit */ }
         if (this.ctx)
             this.master.gain.value = this.muted ? 0 : 1;

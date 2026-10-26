@@ -2,7 +2,7 @@
 <!--
   index.html - the page of its own for the game: the game fills the window. In the
   development server the script is src/main.ts; `npm run build` replaces it with
-  polonaise.js.
+  polonaise.js. A phone held upright is sent on to the phone version in mobile/.
 -->
 <html lang="en">
 <head>
@@ -12,6 +12,11 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#141022">
 <title>Polonaise</title>
+<script>
+// a phone held upright gets the phone version (not in an iframe: the embedding page chose this one)
+if (window.top === window && matchMedia('(pointer: coarse) and (orientation: portrait)').matches)
+    location.replace(`mobile/${location.search}${location.hash}`);
+</script>
 <meta name="description" content="A disco conga line in pixel art: lead the line over the dance floor and get every guest to join.">
 <style>
 :root { color-scheme: dark; }

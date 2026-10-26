@@ -22,6 +22,7 @@
   "help.steer.touch": "WISCHEN: RICHTUNG DER POLONAISE",
   "help.pause.keys": "ESC: PAUSE   M: TON AN/AUS",
   "help.pause.touch": "PAUSE: KNOPF OBEN RECHTS",
+  "help.pause.portrait": "PAUSE: ANZEIGE OBEN ANTIPPEN",
   "help.catch": "GÄSTE BERÜHREN: SIE TANZEN MIT",
   "help.combo": "SCHNELL HINTEREINANDER: KOMBO BIS X5",
   "help.shy": "SCHÜCHTERNE GÄSTE LAUFEN WEG",
@@ -78,5 +79,7 @@
   "entry.anonymous": "???",
 
   "fx.star": "STAR!",
-  "fx.extraLife": "EXTRALEBEN!"
+  "fx.extraLife": "EXTRALEBEN!",
+
+  "portrait.turn": "BITTE DAS HANDY HOCHKANT HALTEN"
 }

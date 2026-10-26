@@ -14,9 +14,15 @@
  *       "page": the keys work anywhere on the page (for a page of its own);
  *       "focus" (default): only while the game has the focus (click it first),
  *       so the keys keep working for the rest of an embedding page
+ *   data-layout="portrait"
+ *       the screen higher than wide, with a field of 11 x 18 cells and no
+ *       buttons: a tap on the status bar pauses (the phone version in mobile/);
+ *       default: the 4:3 screen of the cabinet
  */
 import { Sound } from './audio';
 import { App, type KeyboardScope } from './app';
+import { usePortraitScreen } from './draw';
+import { usePortraitFloor } from './game';
 import { loadLanguage } from './i18n';
 import { ScoreBoard } from './scores';
 import css from './style.css?inline';
@@ -67,6 +73,11 @@ async function boot(): Promise<void> {
     const base = assetBase(root);
     const keyboard: KeyboardScope = root.dataset.keyboard === 'page' ? 'page' : 'focus';
     const touch = window.matchMedia('(pointer: coarse)').matches;
+    const portrait = root.dataset.layout === 'portrait';
+    if (portrait) {
+        usePortraitFloor();
+        usePortraitScreen();
+    }
 
     injectStyle(css);
     const [language, scores] = await Promise.all([
@@ -76,8 +87,8 @@ async function boot(): Promise<void> {
     ]);
     root.lang = language;
 
-    const view = new View(root);
-    new App(view, new Sound(`${base}assets/sounds/`), scores, keyboard, touch).start();
+    const view = new View(root, portrait);
+    new App(view, new Sound(`${base}assets/sounds/`, !portrait), scores, keyboard, touch, portrait).start();
     if (keyboard === 'page')
         root.focus({ preventScroll: true });
 }

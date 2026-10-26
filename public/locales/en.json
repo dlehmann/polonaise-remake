@@ -22,6 +22,7 @@
   "help.steer.touch": "SWIPE: STEER THE CONGA LINE",
   "help.pause.keys": "ESC: PAUSE   M: SOUND ON/OFF",
   "help.pause.touch": "PAUSE: BUTTON AT THE TOP RIGHT",
+  "help.pause.portrait": "PAUSE: TAP THE STATUS BAR",
   "help.catch": "TOUCH THE GUESTS: THEY JOIN IN",
   "help.combo": "ONE AFTER ANOTHER: COMBO UP TO X5",
   "help.shy": "SHY GUESTS RUN AWAY",
@@ -78,5 +79,7 @@
   "entry.anonymous": "???",
 
   "fx.star": "STAR!",
-  "fx.extraLife": "EXTRA LIFE!"
+  "fx.extraLife": "EXTRA LIFE!",
+
+  "portrait.turn": "PLEASE HOLD YOUR PHONE UPRIGHT"
 }

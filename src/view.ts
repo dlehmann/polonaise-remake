@@ -10,6 +10,10 @@
  *       <form class="polonaise-entry"> <input> <button>OK</button> </form>
  *     </div>
  *   </div>
+ *
+ * In portrait the element also has the class polonaise-portrait, the canvas is
+ * 384x704, the buttons are hidden (the status bar pauses, see App), and a note asks
+ * to turn a phone held sideways back upright.
  */
 import { ENTRY_FORM, SCREEN_H, SCREEN_W } from './draw';
 import { t } from './i18n';
@@ -49,9 +53,13 @@ export class View {
     private soundText = '';
     private pauseShown: boolean | null = null;
 
-    /** Builds the game inside root (whose former content is replaced). */
-    constructor(readonly root: HTMLElement) {
+    /**
+     * Builds the game inside root (whose former content is replaced).
+     * @param portrait the portrait screen of the phone version
+     */
+    constructor(readonly root: HTMLElement, portrait: boolean) {
         root.classList.add('polonaise');
+        root.classList.toggle('polonaise-portrait', portrait);
         if (!root.hasAttribute('tabindex'))
             root.tabIndex = 0;          // focusable: keys reach the game when it has the focus
 
@@ -90,6 +98,11 @@ export class View {
             element('div', 'polonaise-buttons', this.pauseButton, this.soundButton, this.fullButton),
             element('div', 'polonaise-stage', this.canvas, this.entryForm),
         );
+        if (portrait) {
+            const note = element('div', 'polonaise-turn');
+            note.textContent = t('portrait.turn');
+            root.append(note);
+        }
     }
 
     /** Updates the buttons: the pause button only shows during a game. */

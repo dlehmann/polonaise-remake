@@ -8,6 +8,10 @@
  * from rectangles. The status bar, the info screens and the texts are drawn in
  * screen pixels with the pixel font Press Start 2P.
  *
+ * In portrait (the phone version, usePortraitScreen()) the canvas is 384x704: the
+ * field of 11 x 18 cells under a status bar of two rows, the info screens in the
+ * middle of the height.
+ *
  * The renderer only reads the game state. Its own state (confetti, floating
  * texts, screen shake) advances in tick(), once per logic tick, and reacts to
  * the game's events in event().
@@ -20,20 +24,35 @@ import { t, tn } from './i18n';
 import type { ScoreEntry } from './scores';
 
 /** The size of the canvas in screen pixels. */
-export const SCREEN_W = 640;
-export const SCREEN_H = 480;
+export let SCREEN_W = 640;
+export let SCREEN_H = 480;
 
 /** Screen pixels per art pixel. */
 const PIX = 2;
 /** The size of a cell in art pixels. */
 const CELL = 16;
-/** The top-left corner of the playing field in art pixels. */
-const FIELD_X = 8, FIELD_Y = 40;
-const FIELD_W = COLS * CELL, FIELD_H = ROWS * CELL;
 /** The height of the status bar in art pixels. */
-const HUD_H = 32;
+let HUD_H = 32;
+/** The height of the status bar in screen pixels. */
+export let HUD_HEIGHT = HUD_H * PIX;
+/** The top-left corner of the playing field in art pixels. */
+const FIELD_X = 8;
+let FIELD_Y = HUD_H + 8;
+let FIELD_W = COLS * CELL, FIELD_H = ROWS * CELL;
 /** The horizontal center of the screen. */
-const CX = SCREEN_W / 2;
+let CX = SCREEN_W / 2;
+/** The info screens are laid out for a height of 480 and moved down by MY to the middle. */
+let MY = 0;
+/** The same for the title and entry screens, which sit a bit higher in portrait. */
+let TITLE_Y = 0;
+/** Portrait: on the title and entry screens the field moves up by this many art pixels and the
+ * floor fills the whole screen (instead of leaving the room of the status bar black). */
+let TITLE_SHIFT = 0;
+/** The width of the info panels, and the inset of their columns from the center. */
+let PANEL_W = 480;
+let PANEL_IN = PANEL_W / 2 - 20;
+/** Portrait: the canvas is higher than wide (the phone version). */
+let portrait = false;
 
 /** A sprite is a bit larger than a cell (outline, hair above the head) and has its own origin. */
 const SPR_W = 18, SPR_H = 22, SPR_OX = 1, SPR_OY = 5;
@@ -50,7 +69,29 @@ const FLASH_TICKS = 24;
  * Where the name input of the high score entry sits, in screen pixels. The form is an
  * HTML element over the canvas (for the on-screen keyboards of phones); view.ts places it.
  */
-export const ENTRY_FORM = { x: 176, y: 248, w: 288, h: 36 } as const;
+export let ENTRY_FORM = { x: 176, y: 248, w: 288, h: 36 };
+
+/**
+ * Switches to the portrait screen of 384x704 pixels for the 11 x 18 cells of
+ * usePortraitFloor() (call that first). Must be called before the Renderer is created.
+ */
+export function usePortraitScreen(): void {
+    portrait = true;
+    HUD_H = 48;
+    HUD_HEIGHT = HUD_H * PIX;
+    FIELD_Y = HUD_H + 8;
+    FIELD_W = COLS * CELL;
+    FIELD_H = ROWS * CELL;
+    SCREEN_W = (FIELD_W + 2 * FIELD_X) * PIX;
+    SCREEN_H = (FIELD_Y + FIELD_H + 8) * PIX;
+    CX = SCREEN_W / 2;
+    MY = (SCREEN_H - 480) / 2;
+    TITLE_Y = MY - 64;
+    TITLE_SHIFT = FIELD_Y - 24;
+    PANEL_W = SCREEN_W - 16;
+    PANEL_IN = PANEL_W / 2 - 20;
+    ENTRY_FORM = { x: CX - 144, y: 248 + TITLE_Y, w: 288, h: 36 };
+}
 
 /** A color as red, green, blue, alpha (0..255). */
 export type Color = readonly [number, number, number, number];
@@ -364,7 +405,7 @@ export interface LastScore {
     rank: number;
 }
 
-/** Draws the game, the title screen and the high score entry on a 640x480 canvas. */
+/** Draws the game, the title screen and the high score entry on a 640x480 (portrait: 384x704) canvas. */
 export class Renderer {
     private readonly ctx: CanvasRenderingContext2D;
     private readonly looks = makeLooks();
@@ -388,7 +429,7 @@ export class Renderer {
     private sy = 0;
 
     /**
-     * @param canvas the 640x480 canvas
+     * @param canvas the canvas of SCREEN_W x SCREEN_H pixels
      * @param touch whether the texts should name the touch controls instead of the keys
      */
     constructor(canvas: HTMLCanvasElement, private readonly touch: boolean) {
@@ -459,8 +500,13 @@ export class Renderer {
         this.text(x, y + size / 2, size, c, align, s);
     }
 
-    /** A centered label. */
+    /** A centered label; a text too wide for the panels gets a smaller size (16 or 8). */
     private title(x: number, y: number, size: number, c: Color, s: string): void {
+        this.ctx.font = `${size}px "Press Start 2P", monospace`;
+        while (size > 8 && this.ctx.measureText(s).width > PANEL_W - 24) {
+            size = size > 16 ? 16 : 8;
+            this.ctx.font = `${size}px "Press Start 2P", monospace`;
+        }
         this.label(x, y, size, c, 0, s);
     }
 
@@ -517,10 +563,12 @@ export class Renderer {
 
     /** Light spots of a mirror ball, wandering over the floor. */
     private drawMirrorBall(): void {
+        // an ellipse along the longer side of the field
+        const rx = portrait ? 0.9 : 1.6, ry = portrait ? 1.6 : 0.9;
         for (let i = 0; i < 16; i++) {
             const a = this.ticks * 0.012 + i * 0.4, r = 30 + (i * 37) % 80;
-            const x = Math.trunc(FIELD_X + FIELD_W / 2 + Math.cos(a) * r * 1.6);
-            const y = Math.trunc(FIELD_Y + FIELD_H / 2 + Math.sin(a) * r * 0.9);
+            const x = Math.trunc(FIELD_X + FIELD_W / 2 + Math.cos(a) * r * rx);
+            const y = Math.trunc(FIELD_Y + FIELD_H / 2 + Math.sin(a) * r * ry);
             const v = Math.trunc(90 + 70 * Math.sin(this.ticks * 0.05 + i));
             if (x > FIELD_X && x < FIELD_X + FIELD_W - 2 && y > FIELD_Y && y < FIELD_Y + FIELD_H - 2)
                 this.art(x, y, 2, 2, alpha(C.WHITE, v));
@@ -658,11 +706,11 @@ export class Renderer {
         return g.stepTimer / songGet(g.song).stepTicks;
     }
 
-    /** The line and the guests, back to front, with their decorations. */
-    private drawPeople(g: Game): void {
+    /** The line (unless line is false) and the guests, back to front, with their decorations. */
+    private drawPeople(g: Game, line = true): void {
         const f = this.lineProgress(g), dance = g.phase === PHASE.CLEARED, d: Figure[] = [];
 
-        for (let i = 0; i < g.length; i++) {
+        for (let i = 0; line && i < g.length; i++) {
             const [x, y] = this.lerpCell(g.from[i], g.body[i], f);
             d.push({
                 x, y, look: g.look[i], legs: (g.steps + i) % 2,
@@ -737,17 +785,23 @@ export class Renderer {
         }
     }
 
-    /** Everything below the status bar: floor, lights, furniture, people, confetti. */
-    private drawWorld(g: Game): void {
+    /**
+     * Everything below the status bar: floor, lights, furniture, people, confetti.
+     * @param backdrop for the title and entry screens: without the line, and in portrait with the
+     *     floor over the whole screen (the world moved up by TITLE_SHIFT)
+     */
+    private drawWorld(g: Game, backdrop = false): void {
         this.fill(0, 0, SCREEN_W, SCREEN_H, C.BLACK);
         this.drawFrameLights();
         this.ctx.drawImage(this.floor, FIELD_X * PIX + this.sx, FIELD_Y * PIX + this.sy, FIELD_W * PIX, FIELD_H * PIX);
+        if (backdrop && TITLE_SHIFT)
+            this.drawFullFloor();
         this.drawLights(g);
         this.drawDj(g);
         this.drawFurniture(g);
         this.drawMirrorBall();
         this.drawArrows(g);
-        this.drawPeople(g);
+        this.drawPeople(g, !backdrop);
         for (const p of this.parts)
             if (p.life > 0)
                 this.art(Math.trunc(p.x), Math.trunc(p.y), 2, 2, alpha(p.color, p.life * 12));
@@ -775,6 +829,12 @@ export class Renderer {
 
         this.fill(0, 0, SCREEN_W, HUD_H * PIX, C.HUD_BG);
         this.fill(0, HUD_H * PIX - 2, SCREEN_W, 2, C.HUD_LINE);
+        if (this.comboFlash && Math.floor(this.comboFlash / 4) % 2)
+            combo = C.WHITE;
+        if (portrait) {
+            this.drawHudPortrait(g, followers, s.target, part, combo, slots);
+            return;
+        }
 
         this.label(16, 8, 8, C.LABEL, -1, t('hud.score'));
         this.label(16, 26, 24, C.WHITE, -1, String(g.score));
@@ -785,8 +845,6 @@ export class Renderer {
         this.fill(232, 48, 120 * part, 6, followers >= s.target ? C.GREEN : C.CYAN);
 
         this.label(410, 8, 8, C.LABEL, 0, t('hud.combo'));
-        if (this.comboFlash && Math.floor(this.comboFlash / 4) % 2)
-            combo = C.WHITE;
         this.label(410, 24, 16, g.combo ? combo : C.DIM, 0, `X${Math.max(g.combo, 1)}`);
         if (g.comboTimer > 0)
             this.fill(380, 48, 60 * g.comboTimer / COMBO_TICKS, 6, combo);
@@ -799,6 +857,37 @@ export class Renderer {
                 c = C.WHITE;
             this.heart(610 - (slots - 1 - i) * 20, 30, c);
         }
+    }
+
+    /** The status bar in portrait, in two rows: score and lives, the line and the combo. */
+    private drawHudPortrait(g: Game, followers: number, target: number, part: number, combo: Color,
+                            slots: number): void {
+        const right = SCREEN_W - 16, done = followers >= target;
+
+        this.label(16, 8, 8, C.LABEL, -1, t('hud.score'));
+        this.label(16, 22, 24, C.WHITE, -1, String(g.score));
+        this.label(right, 8, 8, C.LABEL, 1, t('hud.song', { song: g.song }));
+        // the pause button: a tap on the status bar pauses
+        this.frameRect(CX - 13, 14, 26, 26, 2, C.DIM);
+        this.fill(CX - 6, 21, 4, 12, C.LABEL);
+        this.fill(CX + 2, 21, 4, 12, C.LABEL);
+        for (let i = 0; i < slots; i++) {
+            const alive = i < g.lives;
+            let c: Color = alive ? C.PINK : C.DIM;
+            if (alive && i === g.lives - 1 && this.livesFlash && Math.floor(this.livesFlash / 6) % 2)
+                c = C.WHITE;
+            this.heart(right - 14 - (slots - 1 - i) * 20, 28, c);
+        }
+
+        this.label(16, 54, 8, C.LABEL, -1, t('hud.dancers'));
+        this.label(16, 68, 16, done ? C.GREEN : C.CYAN, -1, `${followers}/${target}`);
+        this.fill(112, 72, 160, 6, C.DIM);
+        this.fill(112, 72, 160 * part, 6, done ? C.GREEN : C.CYAN);
+
+        this.label(right, 54, 8, C.LABEL, 1, t('hud.combo'));
+        this.label(right, 68, 16, g.combo ? combo : C.DIM, 1, `X${Math.max(g.combo, 1)}`);
+        if (g.comboTimer > 0)
+            this.fill(right - 60 * g.comboTimer / COMBO_TICKS, 86, 60 * g.comboTimer / COMBO_TICKS, 4, combo);
     }
 
     /* ---- Effects ---- */
@@ -855,7 +944,7 @@ export class Renderer {
             break;
         case EV.EXTRA_LIFE:
             this.livesFlash = 2 * TICK_HZ;
-            this.fxText(CX, 240, -0.3, 24, C.GREEN, 2 * TICK_HZ, t('fx.extraLife'));
+            this.fxText(CX, SCREEN_H / 2, -0.3, 24, C.GREEN, 2 * TICK_HZ, t('fx.extraLife'));
             break;
         case EV.CLEARED:
             this.clearedTicks = 1;
@@ -908,8 +997,8 @@ export class Renderer {
 
     /** A dark box with a glowing border across the middle of the screen. */
     private panel(y: number, h: number, c: Color): void {
-        this.fill(CX - 240, y, 480, h, alpha(C.HUD_BG, 235));
-        this.glowRect(CX - 240, y, 480, h, 2, c);
+        this.fill(CX - PANEL_W / 2, y, PANEL_W, h, alpha(C.HUD_BG, 235));
+        this.glowRect(CX - PANEL_W / 2, y, PANEL_W, h, 2, c);
     }
 
     /** True every other 20 ticks, for blinking texts. */
@@ -919,7 +1008,7 @@ export class Renderer {
 
     /** The start of a song: its goal, and for the first song the rules. */
     private drawIntro(g: Game): void {
-        const s = songGet(g.song), y = g.song === 1 ? 84 : 170;
+        const s = songGet(g.song), y = (g.song === 1 ? 84 : 170) + MY;
         const start = this.control('intro.start');
 
         this.panel(y, g.song === 1 ? 384 : 140, C.PINK);
@@ -930,7 +1019,7 @@ export class Renderer {
                 t('help.title'),
                 '',
                 this.control('help.steer'),
-                this.control('help.pause'),
+                portrait && this.touch ? t('help.pause.portrait') : this.control('help.pause'),
                 '',
                 t('help.catch'),
                 t('help.combo'),
@@ -963,40 +1052,41 @@ export class Renderer {
     private drawCrash(g: Game): void {
         if (g.timer < 10)
             return;
-        this.panel(176, 120, C.RED);
-        this.title(CX, 192, 32, C.RED, t('crash.title'));
-        this.title(CX, 236, 16, C.TEXT, tn('crash.lives', g.lives));
+        this.panel(176 + MY, 120, C.RED);
+        this.title(CX, 192 + MY, 32, C.RED, t('crash.title'));
+        this.title(CX, 236 + MY, 16, C.TEXT, tn('crash.lives', g.lives));
         if (g.dropped > 0)
-            this.title(CX, 266, 8, C.LABEL, tn('crash.dropped', g.dropped));
+            this.title(CX, 266 + MY, 8, C.LABEL, tn('crash.dropped', g.dropped));
     }
 
     /** The summary of a cleared song: the parts of the bonus appear one after the other. */
     private drawCleared(g: Game): void {
-        const next = songGet(g.song + 1), tt = g.timer - 40, rows = tt < 0 ? -1 : Math.floor(tt / 20), y = 92;
+        const next = songGet(g.song + 1), tt = g.timer - 40, rows = tt < 0 ? -1 : Math.floor(tt / 20), y = 92 + MY;
+        const left = CX - PANEL_IN, right = CX + PANEL_IN, box = Math.min(400, PANEL_W - 32);
 
         if (tt < 0)
             return;
         this.panel(y, 368, C.GREEN);
         this.title(CX, y + 18, 24, C.GREEN, t('cleared.title', { song: g.song }));
         if (rows >= 1) {
-            this.label(100, y + 72, 8, C.TEXT, -1, tn('cleared.line', g.bonusFollowers));
-            this.label(540, y + 70, 16, C.WHITE, 1, `+${g.bonusLine}`);
+            this.label(left, y + 72, 8, C.TEXT, -1, tn('cleared.line', g.bonusFollowers));
+            this.label(right, y + 70, 16, C.WHITE, 1, `+${g.bonusLine}`);
         }
         if (rows >= 2) {
-            this.label(100, y + 104, 8, C.TEXT, -1, t('cleared.song', { song: g.song }));
-            this.label(540, y + 102, 16, C.WHITE, 1, `+${g.bonusSong}`);
+            this.label(left, y + 104, 8, C.TEXT, -1, t('cleared.song', { song: g.song }));
+            this.label(right, y + 102, 16, C.WHITE, 1, `+${g.bonusSong}`);
         }
         if (rows >= 3) {
-            this.label(100, y + 136, 8, C.TEXT, -1, t('cleared.perfect'));
-            this.label(540, y + 134, 16, g.bonusPerfect ? C.WHITE : C.DIM, 1, `+${g.bonusPerfect}`);
+            this.label(left, y + 136, 8, C.TEXT, -1, t('cleared.perfect'));
+            this.label(right, y + 134, 16, g.bonusPerfect ? C.WHITE : C.DIM, 1, `+${g.bonusPerfect}`);
         }
         if (rows >= 4) {
-            this.fill(100, y + 164, 440, 2, C.DIM);
-            this.label(100, y + 182, 8, C.TEXT, -1, t('cleared.total'));
-            this.label(540, y + 178, 24, C.YELLOW, 1, String(g.score));
+            this.fill(left, y + 164, right - left, 2, C.DIM);
+            this.label(left, y + 182, 8, C.TEXT, -1, t('cleared.total'));
+            this.label(right, y + 178, 24, C.YELLOW, 1, String(g.score));
         }
         if (rows >= 5) {
-            this.glowRect(CX - 200, y + 236, 400, 58, 2, C.CYAN);
+            this.glowRect(CX - box / 2, y + 236, box, 58, 2, C.CYAN);
             this.title(CX, y + 250, 8, C.CYAN, t('cleared.next', { song: g.song + 1 }));
             this.title(CX, y + 270, 8, C.LABEL, t('cleared.nextInfo', { target: next.target }));
             if (g.timer >= SKIP_TICKS)
@@ -1007,17 +1097,17 @@ export class Renderer {
     private drawGameOver(g: Game): void {
         if (g.timer < 70)
             return;
-        this.panel(150, 170, C.RED);
-        this.title(CX, 172, 32, C.RED, t('gameover.title'));
-        this.title(CX, 226, 16, C.TEXT, t('gameover.score', { score: g.score }));
-        this.title(CX, 256, 8, C.LABEL, t('gameover.song', { song: g.song }));
+        this.panel(150 + MY, 170, C.RED);
+        this.title(CX, 172 + MY, 32, C.RED, t('gameover.title'));
+        this.title(CX, 226 + MY, 16, C.TEXT, t('gameover.score', { score: g.score }));
+        this.title(CX, 256 + MY, 8, C.LABEL, t('gameover.song', { song: g.song }));
     }
 
     private drawPause(): void {
-        this.panel(160, 130, C.YELLOW);
-        this.title(CX, 180, 24, C.YELLOW, t('pause.title'));
-        this.title(CX, 226, 8, C.TEXT, this.control('pause.resume'));
-        this.title(CX, 250, 8, C.LABEL, this.control('pause.quit'));
+        this.panel(160 + MY, 130, C.YELLOW);
+        this.title(CX, 180 + MY, 24, C.YELLOW, t('pause.title'));
+        this.title(CX, 226 + MY, 8, C.TEXT, this.control('pause.resume'));
+        this.title(CX, 250 + MY, 8, C.LABEL, this.control('pause.quit'));
     }
 
     /** The info for the current phase of the game. */
@@ -1052,10 +1142,40 @@ export class Renderer {
             this.drawInfo(g);
     }
 
+    /**
+     * The floor and the frame over the whole screen, for the backdrop in portrait: the rows above
+     * and below the field (moved by this.sy) continue its checker pattern.
+     */
+    private drawFullFloor(): void {
+        const top = FIELD_Y + this.sy / PIX, bottom = top + FIELD_H, end = SCREEN_H / PIX - 8;
+        const up = top - 8, down = end - bottom, seq = [LIT[0], LIT[1], LIT[2]], b = this.beat(), sy = this.sy;
+
+        this.sy = 0;
+        if (up > 0)
+            this.ctx.drawImage(this.floor, 0, 2 * CELL - up, FIELD_W, up, FIELD_X * PIX, 8 * PIX, FIELD_W * PIX, up * PIX);
+        if (down > 0)
+            this.ctx.drawImage(this.floor, 0, 0, FIELD_W, down, FIELD_X * PIX, bottom * PIX, FIELD_W * PIX, down * PIX);
+        this.art(FIELD_X - 4, 4, FIELD_W + 8, 4, C.FRAME_BG);
+        this.art(FIELD_X - 4, end, FIELD_W + 8, 4, C.FRAME_BG);
+        this.art(FIELD_X - 4, 8, 4, end - 8, C.FRAME_BG);
+        this.art(FIELD_X + FIELD_W, 8, 4, end - 8, C.FRAME_BG);
+        for (let i = 0; i * 4 < FIELD_W + 4; i++) {
+            this.art(FIELD_X - 3 + i * 4, 5, 2, 2, seq[(i + b) % 3]);
+            this.art(FIELD_X - 3 + i * 4, end + 1, 2, 2, seq[(i + b + 1) % 3]);
+        }
+        for (let i = 0; i * 4 < end - 8; i++) {
+            this.art(FIELD_X - 3, 9 + i * 4, 2, 2, seq[(i + b + 2) % 3]);
+            this.art(FIELD_X + FIELD_W + 1, 9 + i * 4, 2, 2, seq[(i + b) % 3]);
+        }
+        this.sy = sy;
+    }
+
     /** The background of the title and entry screens: the demo floor, darkened, under the logo. */
     private drawBackdrop(demo: Game): void {
-        this.sx = this.sy = 0;
-        this.drawWorld(demo);
+        this.sx = 0;
+        this.sy = -TITLE_SHIFT * PIX;
+        this.drawWorld(demo, true);
+        this.sy = 0;
         this.fill(0, 0, SCREEN_W, SCREEN_H, alpha(C.BLACK, 110));
 
         // logo: "POLONAISE" with a pink glow
@@ -1063,15 +1183,16 @@ export class Renderer {
         ctx.save();
         ctx.shadowColor = css(C.PINK);
         ctx.shadowBlur = 18;
-        this.text(CX, 70, 40, C.PINK, 0, 'POLONAISE');
+        // portrait: smaller, so that it stays inside the lights of the frame
+        this.text(CX, 70 + TITLE_Y, portrait ? 32 : 40, C.PINK, 0, 'POLONAISE');
         ctx.restore();
-        this.title(CX, 104, 8, C.CYAN, t('title.tagline'));
+        this.title(CX, 104 + TITLE_Y, 8, C.CYAN, t('title.tagline'));
 
         // a conga line dancing over the title
         const n = 7, tt = this.ticks;
         for (let i = 0; i < n; i++) {
-            const x = 160 - 16 * (i - 3) + Math.round(Math.sin((tt - i * 8) * 0.05) * 3) - 8;
-            this.person(x, 66 + ((Math.floor(tt / 8) + i) % 2), i === 0 ? 0 : 7 * i + 3,
+            const x = CX / PIX - 16 * (i - 3) + Math.round(Math.sin((tt - i * 8) * 0.05) * 3) - 8;
+            this.person(x, 66 + TITLE_Y / PIX + ((Math.floor(tt / 8) + i) % 2), i === 0 ? 0 : 7 * i + 3,
                         (Math.floor(tt / 8) + i) % 2, Math.floor(tt / 15 + i) % 2 === 1 && i > 0, 0, false);
         }
     }
@@ -1083,26 +1204,34 @@ export class Renderer {
     drawTitle(demo: Game, scores: readonly ScoreEntry[], last: LastScore | null): void {
         this.drawBackdrop(demo);
 
-        this.panel(214, 196, C.CYAN);
-        this.title(CX, 230, 16, C.YELLOW, t('title.scores'));
+        // portrait: the song below the score, as the rows are too narrow for both
+        const step = portrait ? 34 : 26, left = CX - PANEL_IN;
+        this.panel(214 + TITLE_Y, 66 + 5 * step, C.CYAN);
+        this.title(CX, 230 + TITLE_Y, 16, C.YELLOW, t('title.scores'));
         if (!scores.length)
-            this.title(CX, 290, 8, C.LABEL, t('title.noScores'));
+            this.title(CX, 290 + TITLE_Y, 8, C.LABEL, t('title.noScores'));
         scores.slice(0, 5).forEach((s, i) => {
-            const y = 262 + i * 26, mark = last !== null && s.id === last.id;
+            const y = 262 + TITLE_Y + i * step, mark = last !== null && s.id === last.id;
             const c = mark && this.blink() ? C.WHITE : mark ? C.YELLOW : C.TEXT;
-            this.label(100, y, 16, c, -1, `${i + 1}.`);
-            this.label(140, y, 16, c, -1, s.name.toLocaleUpperCase() || t('entry.anonymous'));
-            this.label(456, y, 16, c, 1, String(s.score));
-            this.label(544, y + 4, 8, mark ? C.YELLOW : C.LABEL, 1, t('title.song', { song: s.song }));
+            const song = t('title.song', { song: s.song }), songColor = mark ? C.YELLOW : C.LABEL;
+            this.label(left, y, 16, c, -1, `${i + 1}.`);
+            this.label(left + 40, y, 16, c, -1, s.name.toLocaleUpperCase() || t('entry.anonymous'));
+            if (portrait) {
+                this.label(CX + PANEL_IN, y, 16, c, 1, String(s.score));
+                this.label(CX + PANEL_IN, y + 18, 8, songColor, 1, song);
+            } else {
+                this.label(456, y, 16, c, 1, String(s.score));
+                this.label(544, y + 4, 8, songColor, 1, song);
+            }
         });
 
         if (last)
-            this.title(CX, 176, 16, last.rank === 1 ? C.YELLOW : C.TEXT,
+            this.title(CX, 176 + TITLE_Y, 16, last.rank === 1 ? C.YELLOW : C.TEXT,
                        t(last.rank === 1 ? 'title.record' : 'title.yourScore', { score: last.score }));
         if (this.blink())
-            this.title(CX, 432, 16, C.YELLOW, this.control('title.start'));
+            this.title(CX, 432 + TITLE_Y + 5 * (step - 26), 16, C.YELLOW, this.control('title.start'));
         if (!this.touch)
-            this.title(CX, 462, 8, C.LABEL, t('title.keys'));
+            this.title(CX, 462 + TITLE_Y + 5 * (step - 26), 8, C.LABEL, t('title.keys'));
     }
 
     /**
@@ -1112,11 +1241,11 @@ export class Renderer {
     drawEntry(demo: Game, rank: number, score: number): void {
         this.drawBackdrop(demo);
 
-        this.panel(140, 220, C.YELLOW);
-        this.title(CX, 158, 24, this.blink() ? C.WHITE : C.YELLOW, t('entry.title'));
-        this.title(CX, 200, 8, C.TEXT, t('entry.rank', { rank, score }));
-        this.title(CX, 226, 8, C.CYAN, t('entry.prompt'));
+        this.panel(140 + TITLE_Y, 220, C.YELLOW);
+        this.title(CX, 158 + TITLE_Y, 24, this.blink() ? C.WHITE : C.YELLOW, t('entry.title'));
+        this.title(CX, 200 + TITLE_Y, 8, C.TEXT, t('entry.rank', { rank, score }));
+        this.title(CX, 226 + TITLE_Y, 8, C.CYAN, t('entry.prompt'));
         this.glowRect(ENTRY_FORM.x - 4, ENTRY_FORM.y - 4, ENTRY_FORM.w + 8, ENTRY_FORM.h + 8, 2, C.CYAN);
-        this.title(CX, 316, 8, C.LABEL, this.control('entry.hint'));
+        this.title(CX, 316 + TITLE_Y, 8, C.LABEL, this.control('entry.hint'));
     }
 }

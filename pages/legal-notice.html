@@ -14,7 +14,8 @@ body {
     box-sizing: border-box;
     padding-bottom: 20px;
 }
-#polonaise {
+/* (the phone version in mobile/ fits its screen into the room itself) */
+#polonaise:not([data-layout="portrait"]) {
     width: min(100vw, calc((100dvh - 34px - 20px) * 4 / 3));
 }
 
@@ -29,6 +30,16 @@ body {
     padding: 4px;
 }
 .legal-link:hover, .legal-link:focus-visible { color: #ffe03d; outline: none; }
+
+/* the phone version: a smaller link in a narrower band, so the screen gets the room */
+body:has(#polonaise[data-layout="portrait"]) {
+    padding-bottom: 12px;
+}
+body:has(#polonaise[data-layout="portrait"]) .legal-link {
+    bottom: env(safe-area-inset-bottom);
+    font-size: 6px;
+    padding: 3px 4px;
+}
 
 .legal {
     width: min(1180px, calc(100vw - 32px));

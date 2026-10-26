@@ -6,10 +6,11 @@
  * Keys: arrows or WASD steer, Enter or Space continue (the cabinet's A button),
  * Escape or P pause (Q in the pause ends the game), M sound on/off, F fullscreen.
  * Touch: swipe to steer, tap to continue, a long press in the pause ends the game;
- * the buttons at the top right pause and switch the sound and the fullscreen.
+ * the buttons at the top right pause and switch the sound and the fullscreen (in
+ * portrait there are none: a tap on the status bar pauses).
  */
 import { Sound } from './audio';
-import { Renderer, type LastScore } from './draw';
+import { HUD_HEIGHT, Renderer, SCREEN_H, type LastScore } from './draw';
 import { DIR, type Dir, EV, Game, type GameEvent, TICK_HZ } from './game';
 import { ScoreBoard } from './scores';
 import { View } from './view';
@@ -84,7 +85,7 @@ export class App {
     private acc = 0;
 
     constructor(private readonly view: View, private readonly sound: Sound, private readonly scores: ScoreBoard,
-                private readonly keyboard: KeyboardScope, touch: boolean) {
+                private readonly keyboard: KeyboardScope, touch: boolean, private readonly portrait: boolean) {
         this.renderer = new Renderer(view.canvas, touch);
         this.demo.startAt(2);
     }
@@ -258,6 +259,14 @@ export class App {
         }
     }
 
+    /** In portrait, whether a point (client pixels) is on the status bar, which pauses there. */
+    private onHud(x: number, y: number): boolean {
+        if (!this.portrait || this.mode !== 'game')
+            return false;
+        const r = this.view.canvas.getBoundingClientRect();
+        return x >= r.left && x <= r.right && y >= r.top && y < r.top + r.height * HUD_HEIGHT / SCREEN_H;
+    }
+
     /** Touches on the controls (buttons, the name entry) are left to them. */
     private static onControl(ev: Event): boolean {
         return ev.target instanceof Element && ev.target.closest('button, input, form, a') !== null;
@@ -299,6 +308,8 @@ export class App {
             return;
         if (this.paused && performance.now() - s.time >= LONG_PRESS)
             this.endGame();
+        else if (this.onHud(s.x, s.y))
+            this.setPaused(!this.paused);
         else
             this.confirm();
     }
@@ -313,10 +324,13 @@ export class App {
         root.addEventListener('touchstart', ev => this.onTouchStart(ev), active);
         root.addEventListener('touchmove', ev => this.onTouchMove(ev), active);
         root.addEventListener('touchend', ev => this.onTouchEnd(ev), active);
-        v.canvas.addEventListener('mousedown', () => {
+        v.canvas.addEventListener('mousedown', ev => {
             this.sound.unlock();
             root.focus({ preventScroll: true });
-            this.confirm();
+            if (this.onHud(ev.clientX, ev.clientY))
+                this.setPaused(!this.paused);
+            else
+                this.confirm();
         });
 
         // after a click the buttons give the focus back, so Enter and Space do not press them again
@@ -338,6 +352,12 @@ export class App {
             if (document.hidden)
                 this.setPaused(true);
         });
+        // the phone version pauses while the phone is held sideways (it shows a note then)
+        if (this.portrait)
+            window.matchMedia('(orientation: landscape) and (max-height: 500px)').addEventListener('change', ev => {
+                if (ev.matches)
+                    this.setPaused(true);
+            });
         // the page can pause the game, e.g. when it opens a dialog over it
         root.addEventListener('polonaise:pause', () => this.setPaused(true));
     }

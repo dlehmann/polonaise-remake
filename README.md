@@ -6,7 +6,18 @@ A disco conga line in pixel art, steered like Snake: lead the line over the nigh
 guests – they join at the end. Running into a wall, the furniture or the own line costs a life and the back half of the
 line. Endless songs, each with more guests to collect and a faster beat.
 
-**Play it online: https://dlehmann.github.io/polonaise-remake/**
+**Play it online: https://dlehmann.github.io/polonaise-remake/** – on a phone:
+https://dlehmann.github.io/polonaise-remake/mobile/
+
+## Phone version
+
+`mobile/index.html` is a page for phones: the same game in portrait, with a field of 11 x 18 cells instead of 19 x 12
+(about as many cells, with the same eight floors rearranged) and a status bar in two rows above it. The page fills the
+screen, so a swipe anywhere steers, and it cannot be zoomed or scrolled. It has no buttons above the screen: a tap on
+the status bar pauses, and the sound is always on (the phone's own volume and mute switch it). Held sideways, it asks to turn the phone
+upright and pauses the game. It uses
+the same `polonaise.js`, sounds, language files and high score list as the main page. The main page `index.html`
+sends a phone held upright (a touch screen in portrait) there by itself, unless it is shown in an iframe.
 
 The game is written in TypeScript and built with [Vite](https://vite.dev/) into a single JavaScript file. It speaks
 English and German (and any language you add), keeps a high score list with the players' names in the browser and can
@@ -45,6 +56,7 @@ The build bundles all TypeScript and the CSS into one file and writes `dist/`:
 |------------------------|------------------------------------------------------------------------------|
 | `polonaise.js`         | the whole game: one ES module, about 43 kB (16 kB gzipped)                   |
 | `index.html`           | a page of its own for the game, which fills the browser window               |
+| `mobile/index.html`    | the phone version: the game in portrait, filling the screen (see above)      |
 | `assets/sounds/`       | effects and music as Ogg Vorbis, with MP3 copies for browsers without Vorbis |
 | `assets/fonts/`        | the pixel font Press Start 2P (SIL Open Font License, `OFL.txt`)             |
 | `locales/`             | the language files and `languages.json`, the list of available languages     |
@@ -81,6 +93,7 @@ The script looks for the first element with the attribute `data-polonaise`, else
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `data-keyboard="focus"` (default) | the keys only reach the game while it has the focus (after a click on it), so they keep working for the rest of the page                                                                     |
 | `data-keyboard="page"`            | the keys work anywhere on the page (for a page that is only the game)                                                                                                                       |
+| `data-layout="portrait"`          | the screen in portrait (6:11, a field of 11 x 18 cells, the status bar in two rows) instead of 4:3, as on the page for phones                                                               |
 | `data-lang="de"`                  | use this language instead of the browser's, if it is available                                                                                                                               |
 | `data-assets="https://…/"`        | the folder with `assets/` and `locales/`, if it is not the folder of `polonaise.js` (e.g. when the script is served from somewhere else; another origin needs CORS headers for the files) |
 
@@ -140,7 +153,7 @@ The sound setting and the last name are kept in the local storage.
 |--------------------------------|------------------------------------------------------------|
 | Arrows / WASD, swipe           | steer the line                                             |
 | Enter / Space, tap             | start, continue                                            |
-| Escape / P, PAUSE button       | pause; in the pause Q (touch: long press) ends the game    |
+| Escape / P, PAUSE button       | pause (phone version: tap the status bar); in the pause Q (touch: long press) ends the game |
 | M, SOUND button                | sound on/off                                               |
 | F, FULLSCREEN button           | fullscreen                                                 |
 
@@ -161,6 +174,7 @@ search engines leave it out (and follow its links).
 | Path                          | Content                                                                              |
 |-------------------------------|--------------------------------------------------------------------------------------|
 | `index.html`                  | the page: an element for the game and the script                                     |
+| `mobile/index.html`           | the page of the phone version (`data-layout="portrait"`)                             |
 | `src/main.ts`                 | entry point: finds the element, loads font, texts and scores, starts the game        |
 | `src/app.ts`                  | title screen, game, name entry; the loop (60 ticks per second); keyboard and touch   |
 | `src/game.ts`                 | game logic (port of `game.c` of the arcade cabinet, independent of the browser)      |
